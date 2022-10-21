@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "headers/readline_custom.h"
-#define QUIT_PROMPT_RESULT_SIZE 4
+#define QUIT_PROMPT_RESULT_SIZE 6
 
 char quit_prompt_input[QUIT_PROMPT_RESULT_SIZE];
 
@@ -23,8 +23,9 @@ signed char flush_stdin(void) {
 	}
 }
 
-signed char quit_prompt(void) {
-	/* Asks user if he wants to quit or not, adds answer to quit_prompt_input variable 
+signed char quit_prompt(char *prompt) {
+	/* Asks user if he wants to quit or not
+         * returns CONTINUE on "yes", EXIT_PROGRAM on "no" 
 	 * Attempts to read from stdin to memory, until a valid input is given.
 	 * Asks user again on no valid input, no input, or on overflow
 	 * This program also flushes stdin on overflow.
@@ -32,13 +33,14 @@ signed char quit_prompt(void) {
 	 * someone is automating the program with stdin redirect.
 	 * RETURN VALUES: uses the exit_codes enum, which is self-explanatory */
 	
-	size_t fgets_input_length = 0;
-	signed char retval;
 	char *newline_position;
+	char *browse_input;
+	signed char special_character_present = 0;
+	signed char retval;
 	
 	for(;;) {
 		
-		printf("Would you really like to quit? (y/n): ");
+		printf("%s",prompt);
 		
 		memset(quit_prompt_input,0,QUIT_PROMPT_RESULT_SIZE);
 		if (fgets(quit_prompt_input,QUIT_PROMPT_RESULT_SIZE - 1,stdin) == NULL) {
@@ -90,10 +92,27 @@ signed char quit_prompt(void) {
 			fprintf(stderr,"no special characters in input please\n");
 			continue;
 		}
+		
+				/* Check for other special characters.  This can be modified or removed.
+		 * At this point in the function, a newline position exists, and it's not the first character */
+		for(browse_input = quit_prompt_input + 1;browse_input < newline_position ;browse_input++) {
+			if(*browse_input < ' ' || *browse_input > '~') {
+				special_character_present = 1;
+				break;
+			}
+		}
+		
+		if(special_character_present) {
+			fprintf(stderr,"no special characters in input please\n");
+			special_character_present = 0;
+			continue;
+		} else {
+			break; /* leave entire function as SUCCESS */
+		}
 
-		if (*quit_prompt_input == 'y' || *quit_prompt_input == 'Y') {
+		if (!strcmp(quit_prompt_input,"no") || !strcmp(quit_prompt_input,"NO") || !strcmp(quit_prompt_input,"n") || !strcmp(quit_prompt_input,"N")) {
 			return EXIT_PROGRAM;
-		} else if (*quit_prompt_input == 'n' || *quit_prompt_input == 'N') {
+		else if(!strcmp(quit_prompt_input,"yes") || !strcmp(quit_prompt_input,"YES") || !strcmp(quit_prompt_input,"Y") || !strcmp(quit_prompt_input,"y")) {
 			return CONTINUE;
 		} else {
 			printf("Invalid input\n");
