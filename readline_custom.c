@@ -40,6 +40,7 @@ signed char quit_prompt(void) {
 		
 		printf("Would you really like to quit? (y/n): ");
 		
+		memset(quit_prompt_input,0,QUIT_PROMPT_RESULT_SIZE);
 		if (fgets(quit_prompt_input,QUIT_PROMPT_RESULT_SIZE - 1,stdin) == NULL) {
 			if(ferror(stdin)) {
 				perror("");
@@ -60,7 +61,7 @@ signed char quit_prompt(void) {
 		
 		/* CHECK FOR OVERFLOW, this should be the first check in this function that doesn't exit entire program (besides EOF check) */
 		/* if what user enters reaches (input_size_temp - 3) without newline, count as overflow, flush stdin and ask again */
-		newline_position = strchr(quit_prompt_input,'\n');
+		newline_position = memchr(quit_prompt_input,'\n',quit_prompt_input - 2);
 		if(!newline_position) {
 			/* flush stdin */
 			retval = flush_stdin();
@@ -156,7 +157,7 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 		}
 		
 		/* CHECK FOR OVERFLOW, this should be the first check in this function that doesn't exit entire program (besides EOF check) */
-		newline_position = memchr(input,'\n',input_size_temp - 1);
+		newline_position = memchr(input,'\n',input_size_temp - 2);
 		if(!newline_position) {
 			/* flush stdin */
 			retval = flush_stdin();
