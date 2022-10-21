@@ -1,7 +1,7 @@
 # hangman-cli
 hangman game using command line
 
-### Compile
+### Compile and run
 To compile on Debian-based Linux systems, open up the terminal and enter the following lines:
 ```
 sudo apt update && sudo apt install git build-essential cmake -y
