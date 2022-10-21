@@ -39,12 +39,11 @@ int main(void) {
 	char c;
 	int x;
 	int y;
+	signed char retval;
 	char did_find_character = 0;
 	char characters_found = 0;
 	char letters_found[MAX_CHARACTERS + 1] = {0};
 	char letter_guess[4];
-	char to_play_again;
-	char play_again[6];
 	char dashes[(MAX_CHARACTERS * 2) + 1];
 	char letter_hints[(MAX_CHARACTERS * 2) + 1];
 	char *found_char;
@@ -82,7 +81,6 @@ int main(void) {
 	/* setvbuf(stderr,NULL,_IONBF,0); */
 
 	letter_guess[3] = 0;
-	play_again[5] = 0;
 
 	/* main loop */
 	for(;;) {
@@ -107,7 +105,6 @@ int main(void) {
 		memset(letter_hints,' ',word_length * 2);
 		letter_hints[word_length * 2] = 0;
 		letter_hints_present = 0;
-		to_play_again = 0;
 		characters_found = 0;
 		memset(letters_found,0,MAX_CHARACTERS + 1);
 
@@ -152,29 +149,18 @@ int main(void) {
 				print_letter_hints(letter_hints,letter_hints_present);
 				print_dashes(dashes);
 				printf("You won!\n");
-				for(;;) {
-					if(readline_custom("Would you like to play again (y)es/(n)o: ",play_again,6) == EXIT_PROGRAM) {
-						printf("Exiting...\n");
-						exit(EXIT_SUCCESS);
+				retval = quit_prompt("Would you like to play again (y)es/(n)o: ");
+				if(retval == EXIT_PROGRAM) {
+					printf("Exiting...\n");
+					exit(EXIT_SUCCESS);
+				} else if (retval == CONTINUE) {
+					for(j=0;j<6;j++){
+						x = body_parts[j].x;
+						y = body_parts[j].y;
+						man[y][x] = ' ';
 					}
-					if(!strcmp(play_again,"yes") || !strcmp(play_again,"YES") || !strcmp(play_again,"Y") || !strcmp(play_again,"y")) {
-						to_play_again = 1;
-						for(j=0;j<6;j++){
-							x = body_parts[j].x;
-							y = body_parts[j].y;
-							man[y][x] = ' ';
-						}
-						break;
-					} else if (!strcmp(play_again,"no") || !strcmp(play_again,"NO") || !strcmp(play_again,"n") || !strcmp(play_again,"N")) {
-						printf("Exiting...\n");
-						exit(EXIT_SUCCESS);
-					} else {
-						printf("Not a valid entry, please enter 'yes' or 'no'\n");
-						continue;
-					}
+					break; /* breaks out of guessing loop, starting new game */
 				}
-				if(to_play_again)
-					break;
 			}
 			if(did_find_character) {
 				printf("characters found: %d\n",(int)characters_found);
@@ -189,33 +175,21 @@ int main(void) {
 			if(body_parts_index == 6) {
 				print_man(man);
 				printf("You died, you lose\n");
-				for(;;) {
-					if(readline_custom("Would you like to play again (y)es/(n)o: ",play_again,6) == EXIT_PROGRAM) {
-						printf("Exiting...\n");
-						exit(EXIT_SUCCESS);
+				retval = quit_prompt("Would you like to play again (y)es/(n)o: ");
+				if(retval == EXIT_PROGRAM) {
+					printf("Exiting...\n");
+					exit(EXIT_SUCCESS);
+				} else if (retval == CONTINUE) {
+					for(j=0;j<6;j++){
+						x = body_parts[j].x;
+						y = body_parts[j].y;
+						man[y][x] = ' ';
 					}
-					if(!strcmp(play_again,"yes") || !strcmp(play_again,"YES") || !strcmp(play_again,"Y") || !strcmp(play_again,"y")) {
-						to_play_again = 1;
-						for(j=0;j<6;j++){
-							x = body_parts[j].x;
-							y = body_parts[j].y;
-							man[y][x] = ' ';
-						}
-						break;
-					} else if (!strcmp(play_again,"no") || !strcmp(play_again,"NO") || !strcmp(play_again,"n") || !strcmp(play_again,"N")) {
-						printf("Exiting...\n");
-						exit(EXIT_SUCCESS);
-					} else {
-						printf("Not a valid entry, please enter 'yes' or 'no'\n");
-						continue;
-					}
+					break; /* breaks out of guessing loop, starting new game */
 				}
-
 			}
-			if(to_play_again)
-				break;
-
-		}
+			
+		} /* end of guessing loop */
 
 	} /* end of main loop */
 
