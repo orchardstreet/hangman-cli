@@ -78,8 +78,8 @@ int main(void) {
 	 * by setting both to unbuffered mode, normally stdout is
 	 * full buffered and stderr is unbuffered, which causes the
 	 * aforementioned issue. */
-	setvbuf(stdout,NULL,_IONBF,0);
-	setvbuf(stderr,NULL,_IONBF,0);
+	/* setvbuf(stdout,NULL,_IONBF,0); */
+	/* setvbuf(stderr,NULL,_IONBF,0); */
 
 	letter_guess[3] = 0;
 	play_again[5] = 0;

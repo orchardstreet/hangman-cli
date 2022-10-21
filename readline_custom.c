@@ -14,6 +14,8 @@ signed char flush_stdin(void) {
 		if(c == '\n') {
 			return CONTINUE;
 		} else if (c == EOF) {
+			if(isatty(0))
+				printf("\n");
 			printf("detected EOF\n");
 			clearerr(stdin);
 			return EOF_SEEN;
@@ -113,7 +115,6 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 	 * someone is automating the program with stdin redirect.
 	 * RETURN VALUES: uses the exit_codes enum, which is self-explanatory */
 	
-	size_t fgets_input_length = 0;
 	char *newline_position;
 	char *browse_input;
 	signed char special_character_present = 0;
