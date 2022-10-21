@@ -37,8 +37,8 @@ int main(void) {
 	int i;
 	int j;
 	char c;
-	char x;
-	char y;
+	int x;
+	int y;
 	char did_find_character = 0;
 	char characters_found = 0;
 	char letters_found[MAX_CHARACTERS + 1] = {0};
@@ -60,8 +60,8 @@ int main(void) {
 	        " ------"
 	};
 	struct body_part {
-		char y;
-		char x;
+		int y;
+		int x;
 		char part;
 	};
 	struct body_part body_parts[6] = {
