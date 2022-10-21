@@ -150,10 +150,10 @@ int main(void) {
 				print_dashes(dashes);
 				printf("You won!\n");
 				retval = quit_prompt("Would you like to play again (y)es/(n)o: ");
-				if(retval == EXIT_PROGRAM) {
+				if(retval == EXIT_PROGRAM || retval == NO) {
 					printf("Exiting...\n");
 					exit(EXIT_SUCCESS);
-				} else if (retval == CONTINUE) {
+				} else {
 					for(j=0;j<6;j++){
 						x = body_parts[j].x;
 						y = body_parts[j].y;
@@ -176,10 +176,10 @@ int main(void) {
 				print_man(man);
 				printf("You died, you lose\n");
 				retval = quit_prompt("Would you like to play again (y)es/(n)o: ");
-				if(retval == EXIT_PROGRAM) {
+				if(retval == EXIT_PROGRAM || retval == NO) {
 					printf("Exiting...\n");
 					exit(EXIT_SUCCESS);
-				} else if (retval == CONTINUE) {
+				} else {
 					for(j=0;j<6;j++){
 						x = body_parts[j].x;
 						y = body_parts[j].y;

@@ -106,14 +106,12 @@ signed char quit_prompt(char *prompt) {
 			fprintf(stderr,"no special characters in input please\n");
 			special_character_present = 0;
 			continue;
-		} else {
-			break; /* leave entire function as SUCCESS */
-		}
+		} 
 
 		if (!strcmp(quit_prompt_input,"no") || !strcmp(quit_prompt_input,"NO") || !strcmp(quit_prompt_input,"n") || !strcmp(quit_prompt_input,"N")) {
-			return EXIT_PROGRAM;
-		else if(!strcmp(quit_prompt_input,"yes") || !strcmp(quit_prompt_input,"YES") || !strcmp(quit_prompt_input,"Y") || !strcmp(quit_prompt_input,"y")) {
-			return CONTINUE;
+			return NO;
+		} else if(!strcmp(quit_prompt_input,"yes") || !strcmp(quit_prompt_input,"YES") || !strcmp(quit_prompt_input,"Y") || !strcmp(quit_prompt_input,"y")) {
+			return YES;
 		} else {
 			printf("Invalid input\n");
 			continue;
@@ -121,7 +119,6 @@ signed char quit_prompt(char *prompt) {
 		
 	}
 	
-	return SUCCESS; /* success */
 } 
 
 signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
@@ -163,7 +160,8 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 			} else if (feof(stdin)) {
 				printf("\ndetected EOF\n");
 				clearerr(stdin);
-				if(quit_prompt() == EXIT_PROGRAM)
+				retval = quit_prompt("Are you sure you would like to quit? (y)es/(n)o: ");
+				if(retval == EXIT_PROGRAM || retval == YES)
 					return EXIT_PROGRAM;
 				continue;
 			} else {
@@ -184,7 +182,8 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 				printf("Cannot enter more than %lu characters, try again\n",input_size_temp - 3);
 				continue;
 			} else if (retval == EOF_SEEN) {
-				if(quit_prompt() == EXIT_PROGRAM)
+				retval = quit_prompt("Are you sure you would like to quit? (y)es/(n)o: ");
+				if(retval == EXIT_PROGRAM || retval == YES)
 					return EXIT_PROGRAM;
 				continue;
 			}
@@ -200,7 +199,8 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 		*newline_position = 0;
 		
 		if(*input == 'q' && input[1] == 0) {
-			if(quit_prompt() == EXIT_PROGRAM)
+			retval = quit_prompt("Are you sure you would like to quit? (y)es/(n)o: ");
+			if(retval == EXIT_PROGRAM || retval == YES)
 				return EXIT_PROGRAM;
 			continue;
 		}
