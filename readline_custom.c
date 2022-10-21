@@ -14,10 +14,8 @@ signed char flush_stdin(void) {
 		if(c == '\n') {
 			return CONTINUE;
 		} else if (c == EOF) {
+			printf("detected EOF\n");
 			clearerr(stdin);
-			if(isatty(0)) {
-				printf("\n");
-			}
 			return EOF_SEEN;
 		}
 	}
@@ -60,7 +58,7 @@ signed char quit_prompt(void) {
 		
 		/* CHECK FOR OVERFLOW, this should be the first check in this function that doesn't exit entire program (besides EOF check) */
 		/* if what user enters reaches (input_size_temp - 3) without newline, count as overflow, flush stdin and ask again */
-		newline_position = strchr(input,'\n');
+		newline_position = strchr(quit_prompt_input,'\n');
 		if(!newline_position) {
 			/* flush stdin */
 			retval = flush_stdin();
@@ -85,7 +83,7 @@ signed char quit_prompt(void) {
 		
 		/* Check if fgets read a null character, in which case warn user of not entering special characters
 		 * This null character check should always be here, so we don't process an empty string */
-		if(*input == 0) {
+		if(*quit_prompt_input == 0) {
 			fprintf(stderr,"no special characters in input please\n");
 			continue;
 		}
@@ -157,7 +155,7 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 		}
 		
 		/* CHECK FOR OVERFLOW, this should be the first check in this function that doesn't exit entire program (besides EOF check) */
-		newline_position = strchr(input,'\n');
+		newline_position = memchr(input,'\n',input_size_temp - 1);
 		if(!newline_position) {
 			/* flush stdin */
 			retval = flush_stdin();
@@ -189,7 +187,7 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 		/* Check if fgets read a null character, in which case warn user of not entering special characters
 		 * This null character check should always be here, so we don't process an empty string */
 		if(*input == 0) {
-			fprintf(stderr,"no special characters in input please\n");
+			fprintf(stderr,"first character entered is null character, no special characters in input please\n");
 			continue;
 		}
 
