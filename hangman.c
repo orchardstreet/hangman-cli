@@ -220,6 +220,5 @@ int main(void) {
 	} /* end of main loop */
 
 
-	printf("Exiting...\n");
 	return 0;
 }
