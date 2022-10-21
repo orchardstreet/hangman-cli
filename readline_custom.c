@@ -215,14 +215,14 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 		/* Check for other special characters.  This can be modified or removed.
 		 * At this point in the function, a newline position exists, and it's not the first character */
 		for(browse_input = input + 1;browse_input < newline_position ;browse_input++) {
-			if(*browse_input < ' ' || *browse_input > '~') {
+			if(*browse_input < 27 || *browse_input > 122 ) {
 				special_character_present = 1;
 				break;
 			}
 		}
 		
 		if(special_character_present) {
-			fprintf(stderr,"no special characters in input please\n");
+			fprintf(stderr,"Invalid input, please enter a lowercase letter from 'a' to 'z'\n");
 			special_character_present = 0;
 			continue;
 		} else {
