@@ -6,7 +6,7 @@
 #include "headers/board_display.h"
 #define QUIT_PROMPT_RESULT_SIZE 6
 
-char quit_prompt_input[QUIT_PROMPT_RESULT_SIZE]; /* Every compiler 0s out global variables, so this is 0d out */
+char quit_prompt_input[QUIT_PROMPT_RESULT_SIZE]; /* Every compiler 0s out global variables, so this is 0d out, doesn't matter for current implementation though */
 
 signed char flush_stdin(void) {
 	int c;
@@ -40,8 +40,11 @@ signed char print_board_and_prompt_quit(struct board *the_board) {
 		
 		print_board(the_board);
 		
-		/* memset(quit_prompt_input,0,QUIT_PROMPT_RESULT_SIZE); */ 
-		/* memset simply doesn't need to be used here, as glibc null terminates input after detecting EOF */
+		/* Using memset here in case there's a funky fgets implementation that errors out after
+		 * detecting EOF and partially reads into buffer.  Or one that doesn't error
+		 * out after detecting EOF, but also doesn't insert a null character.
+		 * Also 0ing out the buffer before fgets helps with program analysis */
+		memset(quit_prompt_input,0,QUIT_PROMPT_RESULT_SIZE); 
 		if (fgets(quit_prompt_input,QUIT_PROMPT_RESULT_SIZE - 1,stdin) == NULL) {
 			if(ferror(stdin)) {
 				perror("");
@@ -146,8 +149,11 @@ signed char print_board_and_readline(char *input, size_t input_size_temp, struct
 		the_board->prompt = "Guess a letter you think is in the hidden word above: ";
 		print_board(the_board);
 		
-		/* memset(input,0,input_size_temp); */
-		/* memset simply doesn't need to be used here, as glibc null terminates input after detecting EOF */
+		/* Using memset here in case there's a funky fgets implementation that errors out after
+		 * detecting EOF and partially reads into buffer.  Or one that doesn't error
+		 * out after detecting EOF, but also doesn't insert a null character.
+		 * Also 0ing out the buffer before fgets helps with program analysis */
+		memset(input,0,input_size_temp);
 		if (fgets(input,input_size_temp - 1,stdin) == NULL) {
 			if(ferror(stdin)) {
 				perror("");

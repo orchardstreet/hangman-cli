@@ -5,16 +5,19 @@
 #include "headers/readline_custom.h"
 #include "headers/board_display.h"
 #define MAX_CHARACTERS 10 
+#define STRCAT_ARRAY_LIMIT 70
+#define LETTER_GUESS_LIMIT 4
+#define BODY_PARTS_LIMIT 6
 
 /* main function ---------------------------------------------------------------------------------------------------------------------------------------- */
 int main(void) {
 	
 	/* init variables */
 	char *word = "jambalayaa"; /* word user has to guess */
-	char letter_guess[4] = {0};      /* array for getting character user entered */
+	char letter_guess[LETTER_GUESS_LIMIT];      /* array for getting character user entered */
 	char c;                    /* character user entered, aka letter_guess[0] */
 	char body_part_char;       /* holder for body part used in any given moment */
-	char strcat_array[70];     /* for string concatenation */
+	char strcat_array[STRCAT_ARRAY_LIMIT];     /* for string concatenation */
 	unsigned char i,x,y;       /* loop iterator, body part coordinates (x,y) */
 	unsigned char did_find_character; /* if found character */ 
 	unsigned char characters_found;   /* if found character, number of chars found */ 
@@ -33,7 +36,7 @@ int main(void) {
 		" |     ",
 	    " ------"
 	};
-	struct body_part body_parts[6] = { /* list of body parts and their properties for printing or removing from board */
+	struct body_part body_parts[BODY_PARTS_LIMIT] = { /* list of body parts and their properties for printing or removing from board */
 		{2,5,'O'}, /* head */
 		{3,4,'/'}, /* left arm */
 		{3,5,'|'}, /* torso */
@@ -48,7 +51,8 @@ int main(void) {
 	setvbuf(stderr,NULL,_IONBF,0); 
 
 	/* null terminate variables */
-	strcat_array[49] = 0;
+	strcat_array[STRCAT_ARRAY_LIMIT - 1] = 0;
+	letter_guess[LETTER_GUESS_LIMIT - 1] = 0;
 	
 	struct board the_board = {man, letter_hints, dashes, "", ""};
 	
@@ -141,7 +145,7 @@ int main(void) {
 				man[y][x] = body_part_char;
 				body_parts_index++;
 				/*if the user lost ----------------------------------------------------------------------------------  */
-				if(body_parts_index == 6) {
+				if(body_parts_index == BODY_PARTS_LIMIT) {
 					the_board.error_str = "You died, you lose";
 					the_board.prompt = "Would you like to play again (y)es/(n)o: ";
 					retval = print_board_and_prompt_quit(&the_board);
