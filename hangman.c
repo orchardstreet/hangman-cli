@@ -44,7 +44,7 @@ int main(void) {
 		{4,4,'/'}, /* left leg */
 		{4,6,'\\'} /* right leg */
 	};
-	int body_parts_index; /* next body part to display if incorrect character chosen */
+	unsigned char body_parts_index; /* next body part to display if incorrect character chosen */
 
 	/* Prevent stdout and stderr from appearing out of order on CLI */
 	setvbuf(stdout,NULL,_IONBF,0); 
