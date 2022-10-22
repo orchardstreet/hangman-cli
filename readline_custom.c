@@ -24,7 +24,7 @@ signed char flush_stdin(void) {
 	}
 }
 
-signed char quit_prompt(struct board *the_board) {
+signed char print_board_and_prompt_quit(struct board *the_board) {
 	/* Asks user if he wants to quit or not
          * returns CONTINUE on "yes", EXIT_PROGRAM on "no" 
 	 * Attempts to read from stdin to memory, until a valid input is given. * Asks user again on no valid input, no input, or on overflow * This program also flushes stdin on overflow. * This function deals with pecularities of stdin redirect input, in case
@@ -114,7 +114,7 @@ signed char quit_prompt(struct board *the_board) {
 	
 } 
 
-signed char readline_custom(char *input, size_t input_size_temp, struct board *the_board,size_t word_length) {
+signed char print_board_and_readline(char *input, size_t input_size_temp, struct board *the_board,size_t word_length) {
 	/* !! Don't pass a pointer to an array of size less than 4 !! */
 	/* Asks user for input.
 	 * Attempts to read from stdin to memory, until a valid input is given.
@@ -128,7 +128,6 @@ signed char readline_custom(char *input, size_t input_size_temp, struct board *t
 	char *newline_position;
 	char *browse_input;
 	signed char special_character_present = 0;
-	char strcat_array[70];
 	signed char retval;
 	
 	if (input == NULL) {
@@ -143,12 +142,7 @@ signed char readline_custom(char *input, size_t input_size_temp, struct board *t
 		
 	for(;;) {
 		
-		if(word_length >= 255) {
-			fprintf(stderr,"word passed into readline function is over 255, too long\n");
-			return EXIT_PROGRAM;
-		}
-		sprintf(strcat_array,"Guess a letter you think is in the %zu letter word above: ",word_length);
-		the_board->prompt = strcat_array;
+		the_board->prompt = "Guess a letter you think is in the hidden word above: ";
 		print_board(the_board);
 		
 		memset(input,0,input_size_temp);
@@ -160,8 +154,9 @@ signed char readline_custom(char *input, size_t input_size_temp, struct board *t
 			} else if (feof(stdin)) {
 				printf("\ndetected EOF\n");
 				clearerr(stdin);
-				the_board->prompt = "Are you sure you would like to quit? (y)es/(n)o: ";
-				retval = quit_prompt(the_board);
+				the_board->error_str = "";
+				the_board->prompt = "Are you sure you want to quit? (y)es/(n)o: ";
+				retval = print_board_and_prompt_quit(the_board);
 				if(retval == EXIT_PROGRAM || retval == YES)
 					return EXIT_PROGRAM;
 				continue;
@@ -183,8 +178,9 @@ signed char readline_custom(char *input, size_t input_size_temp, struct board *t
 				the_board->error_str = "Cannot enter more than 1 character, try again";
 				continue;
 			} else if (retval == EOF_SEEN) {
-				the_board->prompt = "Are you sure you would like to quit? (y)es/(n)o: ";
-				retval = quit_prompt(the_board);
+				the_board->error_str = "";
+				the_board->prompt = "Are you sure you want to quit? (y)es/(n)o: ";
+				retval = print_board_and_prompt_quit(the_board);
 				if(retval == EXIT_PROGRAM || retval == YES)
 					return EXIT_PROGRAM;
 				continue;
@@ -201,8 +197,9 @@ signed char readline_custom(char *input, size_t input_size_temp, struct board *t
 		*newline_position = 0;
 		
 		if(*input == 'q' && input[1] == 0) {
-			the_board->prompt = "Are you sure you would like to quit? (y)es/(n)o: ";
-			retval = quit_prompt(the_board);
+			the_board->error_str = "";
+			the_board->prompt = "Are you sure you want to quit? (y)es/(n)o: ";
+			retval = print_board_and_prompt_quit(the_board);
 			if(retval == EXIT_PROGRAM || retval == YES)
 				return EXIT_PROGRAM;
 			continue;

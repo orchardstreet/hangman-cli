@@ -6,8 +6,6 @@
 #include "headers/board_display.h"
 #define MAX_CHARACTERS 10 
 
-
-char *space = " ";
 /* main function ---------------------------------------------------------------------------------------------------------- */
 int main(void) {
 	
@@ -69,14 +67,13 @@ int main(void) {
 	letter_guess[3] = 0;
 	strcat_array[49] = 0;
 	
-	struct board the_board = {man, 0, letter_hints, dashes, space, space};
+	struct board the_board = {man, letter_hints, dashes, "", ""};
 	
-	/* main loop ------------------------------------------------------------------------------------------------ */
+	/* main loop for all games ------------------------------------------------------------------------------------ */
 	for(;;) {
 		
 		/* init main loop variables */
 		body_parts_index = 0;
-		the_board.letter_hints_present = 0;
 		characters_found = 0;
 
 		/* find and error check word length */
@@ -102,16 +99,16 @@ int main(void) {
 		}
 		
 		/* clear error_str in the_board struct */
-		the_board.error_str = space;
+		the_board.error_str = "";
 
-		/* guessing loop */
+		/* loop for an individual game, ie for a single word ------------------------------------------------- */
 		for(;;) {
 			
 			/* init guessing loop variables */
 			did_find_character = 0;
 			
-			/* clear and print board, and get character guess from user */
-			if(readline_custom(letter_guess,4,&the_board,word_length) == EXIT_PROGRAM) {
+			/* print screen and get character guess from user */
+			if(print_board_and_readline(letter_guess,4,&the_board,word_length) == EXIT_PROGRAM) {
 				printf("Exiting...\n");
 				exit(EXIT_SUCCESS);
 			}
@@ -135,7 +132,6 @@ int main(void) {
 				letters_found[characters_found - 1] = c;
 				letter_hints[(found_char - word) * 2] = c;
 				did_find_character = 1;
-				the_board.letter_hints_present = 1;
 			}
 			
 			/* If the character the user guessed was found in the answer word */
@@ -145,7 +141,7 @@ int main(void) {
 					the_board.error_str = "You won, congratulations!";
 					/* ask winner if they want to play again */
 					the_board.prompt = "Would you like to play again (y)es/(n)o: ";
-					retval = quit_prompt(&the_board);
+					retval = print_board_and_prompt_quit(&the_board);
 					if(retval == EXIT_PROGRAM || retval == NO) {
 						printf("Exiting...\n");
 						exit(EXIT_SUCCESS);
@@ -167,7 +163,7 @@ int main(void) {
 				if(body_parts_index == 6) {
 					the_board.error_str = "You died, you lose";
 					the_board.prompt = "Would you like to play again (y)es/(n)o: ";
-					retval = quit_prompt(&the_board);
+					retval = print_board_and_prompt_quit(&the_board);
 					if(retval == EXIT_PROGRAM || retval == NO) {
 						printf("Exiting...\n");
 						exit(EXIT_SUCCESS);

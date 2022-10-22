@@ -17,13 +17,9 @@ void print_man(char (*man_copy)[8]) {
 
 }
 
-void print_letter_hints(char *letter_hints,unsigned char letter_hints_present) {
+void print_letter_hints(char *letter_hints) {
 
-	if(letter_hints_present) {
-		printf("                  %s\n",letter_hints);
-	} else {
-		printf("\n");
-	}
+		printf("     hidden word: %s\n",letter_hints);
 
 }
 
@@ -56,7 +52,7 @@ void print_board(struct board* the_board)
 		system("clear");
 	}
 	print_man(the_board->man);
-	print_letter_hints(the_board->letter_hints,the_board->letter_hints_present);
+	print_letter_hints(the_board->letter_hints);
 	print_dashes(the_board->dashes_copy);
 	print_error(the_board->error_str);
 	print_prompt(the_board->prompt);
