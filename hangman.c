@@ -11,7 +11,7 @@ int main(void) {
 	
 	/* init variables */
 	char *word = "jambalayaa"; /* word user has to guess */
-	char letter_guess[4];      /* array for getting character user entered */
+	char letter_guess[4] = {0};      /* array for getting character user entered */
 	char c;                    /* character user entered, aka letter_guess[0] */
 	char body_part_char;       /* holder for body part used in any given moment */
 	char strcat_array[70];     /* for string concatenation */
@@ -48,7 +48,6 @@ int main(void) {
 	setvbuf(stderr,NULL,_IONBF,0); 
 
 	/* null terminate variables */
-	letter_guess[3] = 0;
 	strcat_array[49] = 0;
 	
 	struct board the_board = {man, letter_hints, dashes, "", ""};
