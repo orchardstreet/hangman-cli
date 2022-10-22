@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "headers/readline_custom.h"
+#include "headers/board_display.h"
 #define QUIT_PROMPT_RESULT_SIZE 6
 
 char quit_prompt_input[QUIT_PROMPT_RESULT_SIZE];
@@ -23,13 +24,10 @@ signed char flush_stdin(void) {
 	}
 }
 
-signed char quit_prompt(char *prompt) {
+signed char quit_prompt(struct board *the_board) {
 	/* Asks user if he wants to quit or not
          * returns CONTINUE on "yes", EXIT_PROGRAM on "no" 
-	 * Attempts to read from stdin to memory, until a valid input is given.
-	 * Asks user again on no valid input, no input, or on overflow
-	 * This program also flushes stdin on overflow.
-	 * This function deals with pecularities of stdin redirect input, in case
+	 * Attempts to read from stdin to memory, until a valid input is given. * Asks user again on no valid input, no input, or on overflow * This program also flushes stdin on overflow. * This function deals with pecularities of stdin redirect input, in case
 	 * someone is automating the program with stdin redirect.
 	 * RETURN VALUES: uses the exit_codes enum, which is self-explanatory */
 	
@@ -40,7 +38,7 @@ signed char quit_prompt(char *prompt) {
 	
 	for(;;) {
 		
-		printf("%s",prompt);
+		print_board(the_board);
 		
 		memset(quit_prompt_input,0,QUIT_PROMPT_RESULT_SIZE);
 		if (fgets(quit_prompt_input,QUIT_PROMPT_RESULT_SIZE - 1,stdin) == NULL) {
@@ -68,7 +66,7 @@ signed char quit_prompt(char *prompt) {
 			/* flush stdin */
 			retval = flush_stdin();
 			if (retval == CONTINUE) {
-				printf("Cannot enter more than %d characters, try again\n",QUIT_PROMPT_RESULT_SIZE - 3);
+				the_board->error_str ="Cannot enter more than 3 characters, try again";
 				continue;
 			} else if (retval == EOF_SEEN) {
 				return EXIT_PROGRAM;
@@ -79,7 +77,7 @@ signed char quit_prompt(char *prompt) {
 
 		/* If nothing entered, jump to top of function */
 		if (newline_position == quit_prompt_input) {
-			fprintf(stderr,"Nothing entered, try again\n");
+			the_board->error_str = "Nothing entered, try again";
 			continue;
 		}
 
@@ -88,22 +86,17 @@ signed char quit_prompt(char *prompt) {
 		
 		/* Check if fgets read a null character, in which case warn user of not entering special characters
 		 * This null character check should always be here, so we don't process an empty string */
-		if(*quit_prompt_input == 0) {
-			fprintf(stderr,"no special characters in input please\n");
-			continue;
-		}
-		
-				/* Check for other special characters.  This can be modified or removed.
+		/* Check for other special characters beyond first byte.  This check beyond the first byte can be modified  
 		 * At this point in the function, a newline position exists, and it's not the first character */
-		for(browse_input = quit_prompt_input + 1;browse_input < newline_position ;browse_input++) {
-			if(*browse_input < ' ' || *browse_input > '~') {
+		for(browse_input = quit_prompt_input;browse_input < newline_position ;browse_input++) {
+			if(*browse_input < 'A' || (*browse_input < 'a' && *browse_input > 'Z') || *browse_input > 'z' ) {
 				special_character_present = 1;
 				break;
 			}
 		}
 		
 		if(special_character_present) {
-			fprintf(stderr,"no special characters in input please\n");
+			the_board->error_str ="Invalid input, please enter letters from a-z";
 			special_character_present = 0;
 			continue;
 		} 
@@ -113,7 +106,7 @@ signed char quit_prompt(char *prompt) {
 		} else if(!strcmp(quit_prompt_input,"yes") || !strcmp(quit_prompt_input,"YES") || !strcmp(quit_prompt_input,"Y") || !strcmp(quit_prompt_input,"y")) {
 			return YES;
 		} else {
-			printf("Invalid input\n");
+			the_board->error_str = "Invalid input, please enter (y)es or (n)o";
 			continue;
 		}
 		
@@ -121,7 +114,7 @@ signed char quit_prompt(char *prompt) {
 	
 } 
 
-signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
+signed char readline_custom(char *input, size_t input_size_temp, struct board *the_board,size_t word_length) {
 	/* !! Don't pass a pointer to an array of size less than 4 !! */
 	/* Asks user for input.
 	 * Attempts to read from stdin to memory, until a valid input is given.
@@ -135,6 +128,7 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 	char *newline_position;
 	char *browse_input;
 	signed char special_character_present = 0;
+	char strcat_array[70];
 	signed char retval;
 	
 	if (input == NULL) {
@@ -149,7 +143,13 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 		
 	for(;;) {
 		
-		printf("%s",prompt);
+		if(word_length >= 255) {
+			fprintf(stderr,"word passed into readline function is over 255, too long\n");
+			return EXIT_PROGRAM;
+		}
+		sprintf(strcat_array,"Guess a letter you think is in the %zu letter word above: ",word_length);
+		the_board->prompt = strcat_array;
+		print_board(the_board);
 		
 		memset(input,0,input_size_temp);
 		if (fgets(input,input_size_temp - 1,stdin) == NULL) {
@@ -160,7 +160,8 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 			} else if (feof(stdin)) {
 				printf("\ndetected EOF\n");
 				clearerr(stdin);
-				retval = quit_prompt("Are you sure you would like to quit? (y)es/(n)o: ");
+				the_board->prompt = "Are you sure you would like to quit? (y)es/(n)o: ";
+				retval = quit_prompt(the_board);
 				if(retval == EXIT_PROGRAM || retval == YES)
 					return EXIT_PROGRAM;
 				continue;
@@ -179,10 +180,11 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 			/* flush stdin */
 			retval = flush_stdin();
 			if (retval == CONTINUE) {
-				printf("Cannot enter more than %lu characters, try again\n",input_size_temp - 3);
+				the_board->error_str = "Cannot enter more than 1 character, try again";
 				continue;
 			} else if (retval == EOF_SEEN) {
-				retval = quit_prompt("Are you sure you would like to quit? (y)es/(n)o: ");
+				the_board->prompt = "Are you sure you would like to quit? (y)es/(n)o: ";
+				retval = quit_prompt(the_board);
 				if(retval == EXIT_PROGRAM || retval == YES)
 					return EXIT_PROGRAM;
 				continue;
@@ -191,7 +193,7 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 
 		/* If nothing entered, jump to top of function */
 		if (newline_position == input) {
-			fprintf(stderr,"Nothing entered, try again\n");
+			the_board->error_str = "Nothing entered, try again";
 			continue;
 		}
 
@@ -199,30 +201,27 @@ signed char readline_custom(char *prompt, char *input, size_t input_size_temp) {
 		*newline_position = 0;
 		
 		if(*input == 'q' && input[1] == 0) {
-			retval = quit_prompt("Are you sure you would like to quit? (y)es/(n)o: ");
+			the_board->prompt = "Are you sure you would like to quit? (y)es/(n)o: ";
+			retval = quit_prompt(the_board);
 			if(retval == EXIT_PROGRAM || retval == YES)
 				return EXIT_PROGRAM;
 			continue;
 		}
 		
-		/* Check if fgets read a null character, in which case warn user of not entering special characters
+		/* Check if fgets read a null character into first byte, in which case warn user of not entering special characters
 		 * This null character check should always be here, so we don't process an empty string */
-		if(*input == 0) {
-			fprintf(stderr,"first character entered is null character, no special characters in input please\n");
-			continue;
-		}
-
-		/* Check for other special characters.  This can be modified or removed.
+		/* Also, check for other special characters beyond the first byte.  Checking beyond first byte for null character
+		 * can be modified.
 		 * At this point in the function, a newline position exists, and it's not the first character */
-		for(browse_input = input + 1;browse_input < newline_position ;browse_input++) {
-			if(*browse_input < 27 || *browse_input > 122 ) {
+		for(browse_input = input;browse_input < newline_position ;browse_input++) {
+			if(*browse_input < 'a' || *browse_input > 'z') {
 				special_character_present = 1;
 				break;
 			}
 		}
 		
 		if(special_character_present) {
-			fprintf(stderr,"Invalid input, please enter a lowercase letter from 'a' to 'z'\n");
+			the_board->error_str = "Invalid input, please enter a lowercase letter from 'a' to 'z'";
 			special_character_present = 0;
 			continue;
 		} else {
