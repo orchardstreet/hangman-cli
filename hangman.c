@@ -9,7 +9,6 @@
 /* main function ---------------------------------------------------------------------------------------------------------------------------------------- */
 int main(void) {
 	
-
 	/* init variables */
 	char *word = "jambalayaa"; /* word user has to guess */
 	char letter_guess[4];      /* array for getting character user entered */
