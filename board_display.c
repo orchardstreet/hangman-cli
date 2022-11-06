@@ -49,7 +49,8 @@ void print_error(char *error_str) {
 void print_board(struct board* the_board)
 {
 	if(isatty(0)) {
-		system("clear");
+		/* clear screen and move cursor to top left */
+		printf("\e[2J\e[H");
 	}
 	print_man(the_board->man);
 	print_letter_hints(the_board->letter_hints);
