@@ -54,20 +54,10 @@ unsigned char check_valid_sequence(int *fread_chunk_index,int *chunk_length,char
 		valid_alphabetical_character_count++;
 	}
 
-	if(valid_alphabetical_character_count < MAX_CHARACTERS || valid_alphabetical_character_count < MIN_CHARACTERS) {
+	if(valid_alphabetical_character_count > MAX_CHARACTERS || valid_alphabetical_character_count < MIN_CHARACTERS) {
 		return NO;
 	}
 
-	*fread_chunk_index = *fread_chunk_index + 1;
-	if(*fread_chunk_index == *chunk_length) {
-		if(feof(dict_file)) {
-			return EOF_SEEN;
-		}
-		*chunk_length = get_new_chunk_from_file(fread_chunk_index,fread_chunk,dict_file);
-		if(*chunk_length == 0) {
-			return EOF_SEEN;
-		}
-	}
 	if(fread_chunk[*fread_chunk_index] == '\n')
 		return YES;
 
@@ -86,6 +76,7 @@ unsigned char check_valid_sequence(int *fread_chunk_index,int *chunk_length,char
 			return YES;
 	}
 
+	return NO;
 }
 
 int calculate_words_in_dict_file(FILE *dict_file,char *fread_chunk,char **valid_word_positions_in_file)
@@ -146,6 +137,7 @@ int calculate_words_in_dict_file(FILE *dict_file,char *fread_chunk,char **valid_
 		exit(1);
 
 	}
+	printf("There are %d words in dict file\n",words_in_file);
 	return words_in_file;
 
 }
