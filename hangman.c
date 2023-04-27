@@ -55,6 +55,39 @@ int main(void) {
 	letter_guess[LETTER_GUESS_LIMIT - 1] = 0;
 	
 	struct board the_board = {man, letter_hints, dashes, "", ""};
+
+	/* open file and check for errors
+	 * use while loop to fread chunks from file
+	 * with each chunk in memory, check for valid sequences, which consist of the following:
+	 * (is beginning of file or after newline) (starts with a string of word characters
+	 * which are more than 2 and less than MAX_CHARACTERS) (first non-word character is a carriage return
+	 * or newline) (if fist non-word character is a carriage return, second non-word character is a newline)
+	 * ^above in a function, if resolves to true, then increment words_in_file until MAX_WORDS_IN_FILE.
+	 * we'll have a buffer of char *temp_words[TEMP_WORDS_COUNT] (around 200) words available in memory for games
+	 * for this, we need a randomized array of valid word positions in the file, so the location of the first
+	 * character of a potential valid sequence in a temporary variable, if the sequence evaluates as true, then
+	 * save the position in char *valid_word_positions_in_file[MAX_WORDS_IN_FILE] consecutively
+	 * next, iterate through aforementioned array between 0 and words_in_file: 2 * words_in_file times,
+	 * with each iteration, pick two non-matching random numbers as indexes to swap, using a temporary
+	 * char *temp_char_pointer to facilitate the swap
+	 * now we have a randomized order of valid words
+	 * have an index variable to keep track of these called valid_word_positions_in_file_index
+	 * next we load TEMP_WORDS_COUNT words from the file, through a loop with i that goes from 0 to TEMP_WORDS_COUNT times, if valid_word_positions_in_file_index won't get overrun.  If it will, we represent
+	 * that index to 0
+	 * With each iteration, do, adjust fd to valid_word_positions_in_file[valid_word_positions_in_file_index], then run fgets(temp_words[i],MAX_CHARACTERS,fd), and increment valid_word_positions_in_file_index
+	 *yay! we should now be able to run through the game loop TEMP_WORDS_COUNT times without accessing the hard
+	 *drive, and having a random word available from memory.  After we iterate that many times through the game loop, we need to load TEMP_WORDS_COUNT more words into temp_words with aforementioned function
+	 *the above makes it so we can accept even corrupted files as dicts, as long as the words are newline
+	 *separated at some point.  Tell the user they can use a custom dict by setting DICT_FILE_LOCATION and
+	 *MAX_WORDS_IN_FILE to their liking.  The user can also adjust TEMP_WORDS_COUNT.  Memory will be
+	 *(MAX_WORDS_IN_FILE * sizeof(char *)) + (TEMP_WORDS_COUNT * MAX_CHARACTERS).  A typical game should then be
+	 * take about 42k bytes of memory or (5000 * 8) + (200 * 10).  The above minimizes hard drive reads and
+	 * memory.  To minimize memory more is possible by allowing for the possibility of repeat words before
+	 * MAX_WORDS_IN_FILE has been exausted.  This could be achieved by not saving the index of each valid
+	 * word in a file.  For each time a word is loaded into temp_words, you could pick a random n number between
+	 * 0 and words_in_file, and go through the valid_word file n times to find the word.  This dramatically
+	 * increases the load time of each seet of temp_words, and might only be useful for enormous dicts, or
+	 * if we were running with less than 42k bytes additional bytes of memory (unlikely) */
 	
 	/* main loop for all games ------------------------------------------------------------------------------------------------------------------ */
 	for(;;) {
