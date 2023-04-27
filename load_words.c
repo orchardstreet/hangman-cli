@@ -10,7 +10,7 @@ FILE * open_dict_file(void)
 	dict_file = fopen(DICT_FILE_LOCATION,"r");
 	if(dict_file == NULL) {
 		perror("");
-		fprintf(stderr,"Cannot open dictionary file at %s. Please place a text file of english words"
+		fprintf(stderr,"Cannot open dictionary file at %s. Please place a text file of english words "
 						"separated by newlines in /dict and put the location of that file"
 						"in /headers/config.h where it says 'DICT_FILE_LOCATION'\n",DICT_FILE_LOCATION);
 		exit(1);
@@ -131,7 +131,7 @@ int calculate_words_in_dict_file(FILE *dict_file,char *fread_chunk,char **valid_
 	}
 
 	if(words_in_file == 0) {
-		fprintf(stderr,"No words found in file. Please place a text file of english words"
+		fprintf(stderr,"No words found in file. Please place a text file of english words "
 						"separated by newlines in /dict and put the location of that file"
 						" in /headers/config.h where it says 'DICT_FILE_LOCATION'\n");
 		exit(1);
