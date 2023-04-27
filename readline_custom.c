@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "headers/readline_custom.h"
 #include "headers/board_display.h"
+#include "headers/config.h"
 #define QUIT_PROMPT_RESULT_SIZE 6
 
 char quit_prompt_input[QUIT_PROMPT_RESULT_SIZE]; /* Every compiler 0s out global variables, so this is 0d out, doesn't matter for current implementation though */
